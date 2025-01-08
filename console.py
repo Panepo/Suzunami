@@ -25,15 +25,15 @@ def demo():
     prompt = start_message + console_message_start + message + console_message_end
     input_tokens = tokenizer.encode(prompt)
     params.set_search_options(**search_options)
-
+    params.input_ids = input_tokens
     generator = og.Generator(model, params)
-    generator.append_tokens(input_tokens)
 
     print("================================================")
     print("Output: ", end='', flush=True)
 
     try:
       while not generator.is_done():
+        generator.compute_logits()
         generator.generate_next_token()
         if first:
           first = False
@@ -50,9 +50,6 @@ def demo():
     prompt_time = first_token_timestamp - started_timestamp
     run_time = time.time() - first_token_timestamp
     print(f"Prompt length: {len(input_tokens)}, New tokens: {len(new_tokens)}, Time to first: {(prompt_time):.2f}s, Prompt tokens per second: {len(input_tokens)/prompt_time:.2f} tps, New tokens per second: {len(new_tokens)/run_time:.2f} tps")
-
-
-
 
 if __name__ == "__main__":
   demo()
